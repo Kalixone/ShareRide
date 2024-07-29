@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-createRolesTable
+      author: kalixone
+      changes:
+        - createTable:
+            tableName: roles
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: role_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+  - changeSet:
+      id: 02-insertDefaultRoles
+      author: kalixone
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: role_name
+                  value: CUSTOMER
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: role_name
+                  value: MANAGER

@@ -1,5 +1,6 @@
 package mate.academy.car_sharing_app.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import mate.academy.car_sharing_app.dto.CarDto;
 import mate.academy.car_sharing_app.dto.CreateCarRequestDto;
@@ -22,7 +23,7 @@ public class CarController {
     private final CarService carService;
 
     @PostMapping
-    CarDto createCar(@RequestBody CreateCarRequestDto createCarRequestDto) {
+    CarDto createCar(@RequestBody @Valid CreateCarRequestDto createCarRequestDto) {
        return carService.createCar(createCarRequestDto);
     }
 
@@ -37,7 +38,9 @@ public class CarController {
     }
 
     @PutMapping("/{id}")
-    CarDto update(@PathVariable Long id, @RequestBody UpdateCarRequestDto updateCarRequestDto) {
+    CarDto update(@PathVariable Long id,
+                  @RequestBody @Valid
+                  UpdateCarRequestDto updateCarRequestDto) {
         return carService.update(id, updateCarRequestDto);
     }
 

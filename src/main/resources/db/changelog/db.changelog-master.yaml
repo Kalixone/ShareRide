@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/01-create-user_table_and_roles_table_and_insert-default-roles.yaml

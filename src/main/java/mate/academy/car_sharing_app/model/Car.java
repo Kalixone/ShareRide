@@ -22,12 +22,16 @@ public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String model;
+    @Column(nullable = false)
     private String brand;
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TypeCar type;
+    @Column(nullable = false)
     private int inventory;
-    @Column(name = "daily_fee")
+    @Column(name = "daily_fee", nullable = false)
     private BigDecimal dailyFee;
 
     public enum TypeCar {
