@@ -8,9 +8,9 @@ import mate.academy.car_sharing_app.exceptions.EntityNotFoundException;
 import mate.academy.car_sharing_app.mapper.CarMapper;
 import mate.academy.car_sharing_app.model.Car;
 import mate.academy.car_sharing_app.repository.CarRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -33,9 +33,10 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarDto> getAll() {
-        List<Car> allCars = carRepository.findAll();
-        return allCars.stream().map(carMapper::toDto).collect(Collectors.toList());
+    public List<CarDto> getAll(Pageable pageable) {
+        return carRepository.findAll(pageable)
+                .map(carMapper::toDto)
+                .toList();
     }
 
     @Override
