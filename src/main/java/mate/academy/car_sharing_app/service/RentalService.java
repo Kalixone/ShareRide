@@ -15,4 +15,8 @@ public interface RentalService {
 
     RentalDto setActualReturnDate(
             RentalSetActualReturnDateRequestDto rentalSetActualReturnDateRequestDto);
+
+    List<RentalDto> checkOverdueRentals();
+
+    void checkOverdueRentalsAndNotify();
 }
