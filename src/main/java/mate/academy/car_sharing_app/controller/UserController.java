@@ -3,6 +3,7 @@ package mate.academy.car_sharing_app.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 import mate.academy.car_sharing_app.dto.UpdateUserRequestDto;
@@ -50,6 +51,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/role")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     @Operation(
             summary = "Update user role by ID",
             description = "Update the role of a user identified by their ID." +

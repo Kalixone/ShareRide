@@ -1,0 +1,138 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: kalixone
+      changes:
+        - createTable:
+            tableName: cars
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: model
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: brand
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: inventory
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: daily_fee
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 2
+      author: kalixone
+      changes:
+        - insert:
+            tableName: cars
+            columns:
+              - column:
+                  name: model
+                  value: "Model S"
+              - column:
+                  name: brand
+                  value: "Tesla"
+              - column:
+                  name: type
+                  value: "SEDAN"
+              - column:
+                  name: inventory
+                  value: 5
+              - column:
+                  name: daily_fee
+                  value: 99.99
+
+        - insert:
+            tableName: cars
+            columns:
+              - column:
+                  name: model
+                  value: "X5"
+              - column:
+                  name: brand
+                  value: "BMW"
+              - column:
+                  name: type
+                  value: "SUV"
+              - column:
+                  name: inventory
+                  value: 3
+              - column:
+                  name: daily_fee
+                  value: 129.99
+
+        - insert:
+            tableName: cars
+            columns:
+              - column:
+                  name: model
+                  value: "Golf"
+              - column:
+                  name: brand
+                  value: "Volkswagen"
+              - column:
+                  name: type
+                  value: "HATCHBACK"
+              - column:
+                  name: inventory
+                  value: 7
+              - column:
+                  name: daily_fee
+                  value: 69.99
+
+        - insert:
+            tableName: cars
+            columns:
+              - column:
+                  name: model
+                  value: "Octavia"
+              - column:
+                  name: brand
+                  value: "Skoda"
+              - column:
+                  name: type
+                  value: "UNIVERSAL"
+              - column:
+                  name: inventory
+                  value: 4
+              - column:
+                  name: daily_fee
+                  value: 79.99
+
+        - insert:
+            tableName: cars
+            columns:
+              - column:
+                  name: model
+                  value: "A4"
+              - column:
+                  name: brand
+                  value: "Audi"
+              - column:
+                  name: type
+                  value: "SEDAN"
+              - column:
+                  name: inventory
+                  value: 6
+              - column:
+                  name: daily_fee
+                  value: 109.99

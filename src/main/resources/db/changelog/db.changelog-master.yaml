@@ -1,3 +1,7 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changes/01-create-user_table_and_roles_table_and_insert-default-roles.yaml
+      file: db/changelog/changes/01-create-users_table_and_roles_table_and_insert-default-roles.yaml
+  - include:
+      file: db/changelog/changes/02-create-cars_table-and-insert-5-cars.yaml
+  - include:
+      file: db/changelog/changes/03-create-users_table-and-insert-admin.yaml
