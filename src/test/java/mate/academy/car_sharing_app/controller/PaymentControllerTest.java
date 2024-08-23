@@ -65,6 +65,10 @@ public class PaymentControllerTest {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(
                     connection,
+                    new ClassPathResource("database/cars/delete-cars-from-cars_table.sql")
+            );
+            ScriptUtils.executeSqlScript(
+                    connection,
                     new ClassPathResource("database/cars/add-3-cars-to-cars_table.sql")
             );
             ScriptUtils.executeSqlScript(
