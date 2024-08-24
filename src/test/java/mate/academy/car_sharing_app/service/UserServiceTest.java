@@ -154,7 +154,7 @@ public class UserServiceTest {
                 user.getFirstName(), user.getLastName(),
                 user.getRole().getRoleName());
 
-            when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
         when(roleRepository.findByRoleName(ROLE)).thenReturn(Optional.of(role));
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(userDto);

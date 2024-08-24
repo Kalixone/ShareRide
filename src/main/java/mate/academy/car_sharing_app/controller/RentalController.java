@@ -33,7 +33,6 @@ public class RentalController {
     RentalDto rentACar(Authentication authentication,
                        @RequestBody RentalRequestDto rentalRequestDto) {
         Long userId = ((User) authentication.getPrincipal()).getId();
-
         return rentalService.rentACar(userId, rentalRequestDto);
     }
 

@@ -5,3 +5,4 @@ public class RentalNotFoundException extends RuntimeException {
         super(message);
     }
 }
+

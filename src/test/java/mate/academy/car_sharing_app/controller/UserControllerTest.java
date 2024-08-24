@@ -96,7 +96,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(username = "dirk@example.com")
-    @DisplayName("Retrieve current user profile information")
+    @DisplayName("Verify getProfileInfo() method works")
     void getProfileInfo_AuthenticatedUser_ReturnsUserProfile() throws Exception {
         // When
         MvcResult result = mockMvc.perform(
@@ -118,7 +118,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(username = "dirk@example.com")
-    @DisplayName("Update current user profile information")
+    @DisplayName("Verify updateProfile() method works")
     void updateProfile_ValidRequestDto_UpdatesUserProfile() throws Exception {
         // Given
         UpdateUserRequestDto updateUserRequestDto = new UpdateUserRequestDto(
@@ -143,8 +143,8 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"ROLE_MANAGER"})
-    @DisplayName("Update user role by ID")
+    @WithMockUser(username = "dirk@example.com", authorities = {"ROLE_MANAGER"})
+    @DisplayName("Verify updateRole() method works")
     void updateRole_ValidRequestDto_UpdatesUserRole() throws Exception {
         // Given
         UpdateUserRoleRequestDto updateUserRoleRequestDto

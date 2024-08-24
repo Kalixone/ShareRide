@@ -9,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class CarRepositoryTest {
-
     private static final Long CAR_ID = 1L;
 
     @Autowired
@@ -43,7 +41,7 @@ public class CarRepositoryTest {
         // When
         carRepository.decreaseInventory(CAR_ID);
         entityManager.flush();
-        entityManager.refresh(car); // Ensure the entity is refreshed
+        entityManager.refresh(car);
 
         // Then
         Car updatedCar = carRepository.findById(CAR_ID).orElseThrow();
@@ -69,7 +67,7 @@ public class CarRepositoryTest {
         // When
         carRepository.increaseInventory(CAR_ID);
         entityManager.flush();
-        entityManager.refresh(car); // Ensure the entity is refreshed
+        entityManager.refresh(car);
 
         // Then
         Car updatedCar = carRepository.findById(CAR_ID).orElseThrow();

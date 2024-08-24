@@ -38,12 +38,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CarControllerTest {
     private static final Long CAR_ID = 1L;
+    private static final Long SECOND_CAR_ID = 2L;
     private static final Long DELETE_CAR_ID = 3L;
     private static final String MODEL = "Model S";
+    private static final String SECOND_MODEL = "Civic";
     private static final String BRAND = "Tesla";
+    private static final String SECOND_BRAND = "Honda";
     private static final Car.TypeCar TYPE = Car.TypeCar.SEDAN;
+    private static final Car.TypeCar SECOND_TYPE = Car.TypeCar.SEDAN;
     private static final int INVENTORY = 10;
     private static final BigDecimal DAILY_FEE = BigDecimal.valueOf(100.00);
+    private static final BigDecimal SECOND_DAILY_FEE = BigDecimal.valueOf(75.50);
     protected static MockMvc mockMvc;
 
     @Autowired
@@ -90,8 +95,8 @@ public class CarControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"ROLE_MANAGER"})
-    @DisplayName("Create a new car record")
+    @WithMockUser(username = "dirk@example.com", authorities = {"ROLE_MANAGER"})
+    @DisplayName("Verify createCar() method works")
     void createCar_ValidRequestDto_CreatesNewCar() throws Exception {
         // Given
         CreateCarRequestDto carRequestDto
@@ -118,8 +123,8 @@ public class CarControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"MANAGER"})
-    @DisplayName("Retrieve car details by ID")
+    @WithMockUser(username = "dirk@example.com")
+    @DisplayName("Verify getCarById() method works")
     void getCarById_ValidId_ReturnsCarDto() throws Exception {
         // Given
         CarDto carDto
@@ -143,14 +148,14 @@ public class CarControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"USER"})
-    @DisplayName("Get a list of all cars")
+    @WithMockUser(username = "dirk@example.com")
+    @DisplayName("Verify getAll() method works")
     void getAll_ValidRequest_ReturnsAllCars() throws Exception {
         // Given
-        CarDto carDto1 = createCarDto(1L, "Model S",
-                "Tesla", Car.TypeCar.SEDAN, BigDecimal.valueOf(100.00));
-        CarDto carDto2 = createCarDto(2L, "Civic",
-                "Honda", Car.TypeCar.SEDAN, BigDecimal.valueOf(75.50));
+        CarDto carDto1 = createCarDto(CAR_ID, MODEL,
+                BRAND,TYPE, DAILY_FEE);
+        CarDto carDto2 = createCarDto(SECOND_CAR_ID, SECOND_MODEL,
+                SECOND_BRAND, SECOND_TYPE, SECOND_DAILY_FEE);
         List<CarDto> expected = List.of(carDto1, carDto2);
 
         // When
@@ -167,8 +172,8 @@ public class CarControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"ROLE_MANAGER"})
-    @DisplayName("Delete car record by ID")
+    @WithMockUser(username = "dirk@example.com'", authorities = {"ROLE_MANAGER"})
+    @DisplayName("Verify deleteById() method works")
     void deleteCarById_ValidId_DeletesCar() throws Exception {
         // Given
         carRepository.findById(DELETE_CAR_ID);

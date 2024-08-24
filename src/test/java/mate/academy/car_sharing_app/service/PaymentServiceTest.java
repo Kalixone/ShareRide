@@ -37,7 +37,7 @@ public class PaymentServiceTest {
     private RentalRepository rentalRepository;
 
     @Test
-    @DisplayName("Verify getPaymentsByUserId() returns correct payment list")
+    @DisplayName("Verify getPaymentsByUserId() method works")
     public void getPaymentsByUserId_ValidUserId_ReturnsPaymentList() {
         // Given
         List<Payment> payments = createTestPayments();
@@ -56,7 +56,7 @@ public class PaymentServiceTest {
     }
 
     @Test
-    @DisplayName("Verify handlePaymentSuccess() updates payment status correctly")
+    @DisplayName("Verify handlePaymentSuccess() method works")
     public void handlePaymentSuccess_ValidSessionId_UpdatesPaymentStatus() {
         // Given
         Payment payment = createTestPayment();
@@ -73,7 +73,7 @@ public class PaymentServiceTest {
     }
 
     @Test
-    @DisplayName("Verify handlePaymentCancel() returns correct message")
+    @DisplayName("Verify handlePaymentCancel() method works")
     public void handlePaymentCancel_ReturnsCancelMessage() {
         // When
         String result = paymentService.handlePaymentCancel();

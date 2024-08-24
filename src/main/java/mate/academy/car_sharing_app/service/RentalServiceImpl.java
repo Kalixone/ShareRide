@@ -8,6 +8,7 @@ import mate.academy.car_sharing_app.dto.CarDto;
 import mate.academy.car_sharing_app.dto.RentalSetActualReturnDateRequestDto;
 import mate.academy.car_sharing_app.exceptions.CarNotFoundException;
 import mate.academy.car_sharing_app.exceptions.RentalNotFoundException;
+import mate.academy.car_sharing_app.exceptions.UsernameNotFoundException;
 import mate.academy.car_sharing_app.mapper.CarMapper;
 import mate.academy.car_sharing_app.mapper.RentalMapper;
 import mate.academy.car_sharing_app.model.Car;
@@ -41,7 +42,7 @@ public class RentalServiceImpl implements RentalService {
                 () -> new CarNotFoundException("Car not found by id: " + rentalRequestDto.carId()));
 
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found"));
+                () -> new UsernameNotFoundException("User not found by id: " + userId));
 
         UserDto userDto = new UserDto(
                 user.getId(),
@@ -84,7 +85,7 @@ public class RentalServiceImpl implements RentalService {
         LocalDate now = LocalDate.now();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found by id: " + userId));
         UserDto userDto = new UserDto(
                 user.getId(),
                 user.getEmail(),
@@ -110,17 +111,19 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto getSpecificRentalByUserId(Long userId, Long rentalId) {
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new RuntimeException("Rental not found"));
+                .orElseThrow(() -> new RentalNotFoundException("Rental not found" +
+                        " by id: " + rentalId));
 
         if (!rental.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access");
         }
 
         Car car = carRepository.findById(rental.getCarId())
-                .orElseThrow(() -> new RuntimeException("Car not found"));
+                .orElseThrow(() -> new CarNotFoundException("Car" +
+                        " not found by id: " + rental.getCarId()));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found by id: " + userId));
 
         UserDto userDto = new UserDto(
                 user.getId(),
@@ -164,10 +167,12 @@ public class RentalServiceImpl implements RentalService {
         carRepository.increaseInventory(rental.getCarId());
 
         Car car = carRepository.findById(rental.getCarId())
-                .orElseThrow(() -> new RuntimeException("Car not found"));
+                .orElseThrow(() -> new CarNotFoundException("Car not found" +
+                        " by id: " + rental.getCarId()));
 
         User user = userRepository.findById(rental.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found" +
+                        " by id: " + rental.getUserId()));
         UserDto userDto = new UserDto(
                 user.getId(),
                 user.getEmail(),
@@ -205,7 +210,8 @@ public class RentalServiceImpl implements RentalService {
             for (Rental rental : overdueRentals) {
                 CarDto carDto = carRepository.findById(rental.getCarId())
                         .map(carMapper::toDto)
-                        .orElseThrow(() -> new RuntimeException("Bład"));
+                        .orElseThrow(() -> new CarNotFoundException("Car not found" +
+                                " by id: " + rental.getCarId()));
                 UserDto userDto = userRepository.findById(rental.getUserId())
                         .map(user -> new UserDto(
                                 user.getId(),
@@ -214,7 +220,8 @@ public class RentalServiceImpl implements RentalService {
                                 user.getLastName(),
                                 user.getRole().getRoleName()
                         ))
-                        .orElseThrow(() -> new RuntimeException("Bład"));
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found" +
+                                " by id: " + rental.getUserId()));
 
                 RentalDto rentalDto = rentalMapper.toDto(rental)
                         .withCar(carDto)

@@ -1,10 +1,12 @@
-HELP.md
+# Ignore build directories
 target/
-!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# Ignore Maven wrapper jar
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS (Spring Tool Suite) ###
 .apt_generated
 .classpath
 .factorypath
@@ -14,7 +16,7 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -35,3 +37,16 @@ build/
 # Ignore application.properties files
 application.properties
 **/application.properties
+
+# Ignore sensitive configuration files
+config/
+*.env
+*.yml
+*.yaml
+
+# Ignore local environment files
+.env
+.env.local
+
+# Ignore log files
+*.log

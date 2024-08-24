@@ -1,33 +1,30 @@
 package mate.academy.car_sharing_app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import mate.academy.car_sharing_app.dto.PaymentDto;
 import mate.academy.car_sharing_app.dto.PaymentRequestDto;
 import mate.academy.car_sharing_app.model.Payment;
 import mate.academy.car_sharing_app.service.PaymentService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.datasource.init.ScriptStatementFailedException;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import javax.sql.DataSource;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.util.AssertionErrors.assertNotNull;
@@ -37,12 +34,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PaymentControllerTest {
-
     private static final Long USER_ID = 1L;
     private static final Long RENTAL_ID = 1L;
     private static final String SESSION_ID = "session1";
-    private static final String SESSION_URL = "http://example.com/session1";
-    private static final BigDecimal AMOUNT_TO_PAY = BigDecimal.valueOf(100.00);
 
     protected static MockMvc mockMvc;
 
@@ -94,16 +88,18 @@ public class PaymentControllerTest {
     static void afterAll(
             @Autowired DataSource dataSource
     ) {
+        teardown(dataSource);
+    }
+
+    @SneakyThrows
+    static void teardown(DataSource dataSource) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
-            try {
-                ScriptUtils.executeSqlScript(
-                        connection,
-                        new ClassPathResource("database/payments/delete-payments" +
-                                "-from-payments_table.sql")
-                );
-            } catch (ScriptStatementFailedException e) {
-            }
+            ScriptUtils.executeSqlScript(
+                    connection,
+                    new ClassPathResource("database/payments/delete-payments" +
+                            "-from-payments_table.sql")
+            );
             ScriptUtils.executeSqlScript(
                     connection,
                     new ClassPathResource("database/cars/delete-cars-from-cars_table.sql")
@@ -120,15 +116,12 @@ public class PaymentControllerTest {
                     connection,
                     new ClassPathResource("database/rentals/drop-rentals-table.sql")
             );
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error in afterAll teardown", e);
         }
     }
 
     @Test
-    @WithMockUser(username = "dirk@example.com", authorities = {"USER"})
-    @DisplayName("Create a new payment session")
+    @WithMockUser(username = "dirk@example.com")
+    @DisplayName("Verify createPaymentSession() method works")
     void createPaymentSession_ValidRequest_CreatesNewPaymentSession() throws Exception {
         // Given
         PaymentRequestDto paymentRequestDto = new PaymentRequestDto(RENTAL_ID, Payment.Type.PAYMENT);
@@ -155,8 +148,8 @@ public class PaymentControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "dirk@example.com", authorities = {"USER"})
-    @DisplayName("Get payments by user ID")
+    @WithMockUser(username = "dirk@example.com")
+    @DisplayName("Verify getPayments() method works")
     void getPayments_ValidUserId_ReturnsPayments() throws Exception {
         // When
         MvcResult result = mockMvc.perform(
@@ -170,12 +163,12 @@ public class PaymentControllerTest {
         List<PaymentDto> actual = objectMapper.readValue(result.getResponse()
                 .getContentAsString(), objectMapper.getTypeFactory()
                 .constructCollectionType(List.class, PaymentDto.class));
-        assertFalse(actual.isEmpty()); // Ensure payments are returned
+        assertFalse(actual.isEmpty());
     }
 
     @Test
-    @WithMockUser(username = "dirk@example.com", authorities = {"USER"})
-    @DisplayName("Handle payment success")
+    @WithMockUser(username = "dirk@example.com")
+    @DisplayName("Verify handlePaymentSuccess() method works")
     void handlePaymentSuccess_ValidSessionId_ReturnsSuccessMessage() throws Exception {
         // When
         MvcResult result = mockMvc.perform(

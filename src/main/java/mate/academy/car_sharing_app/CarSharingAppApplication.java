@@ -10,6 +10,5 @@ public class CarSharingAppApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CarSharingAppApplication.class, args);
-
 	}
 }

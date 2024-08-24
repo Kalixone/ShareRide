@@ -29,10 +29,13 @@ public class RentalRepositoryTest {
             "classpath:database/rentals/drop-rentals-table.sql"
     }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findOverdueRentals_ShouldReturnOverdueRentals() {
+        // Given
         LocalDate today = LocalDate.of(2024,7,11);
 
+        // When
         List<Rental> rentals = rentalRepository.findOverdueRentals(today);
 
+        // Then
         assertThat(rentals).isNotNull();
         assertThat(rentals).allMatch(rental -> rental.getReturnDate().isBefore(today));
     }
@@ -48,8 +51,10 @@ public class RentalRepositoryTest {
             "classpath:database/rentals/drop-rentals-table.sql"
     }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findRentalIdsByUserId_ShouldReturnRentalIdsForUser() {
+        // When
         List<Long> rentalIdsByUserId = rentalRepository.findRentalIdsByUserId(USER_ID);
 
+        // Then
         assertThat(rentalIdsByUserId).isNotNull();
         assertThat(rentalIdsByUserId).hasSize(2);
     }

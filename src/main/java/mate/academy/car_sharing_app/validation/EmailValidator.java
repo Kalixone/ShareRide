@@ -2,7 +2,6 @@ package mate.academy.car_sharing_app.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-
 import java.util.regex.Pattern;
 
 public class EmailValidator implements ConstraintValidator<Email, String> {

@@ -41,7 +41,3 @@ public class Car {
         UNIVERSAL
     }
 }
-
-
-
-

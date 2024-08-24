@@ -34,7 +34,6 @@ public class UserController {
     )
     public UserDto getProfileInfo(Authentication authentication) {
         String username = ((UserDetails) authentication.getPrincipal()).getUsername();
-
         return userService.getProfileInfo(username);
     }
 
@@ -55,7 +54,7 @@ public class UserController {
     @Operation(
             summary = "Update user role by ID",
             description = "Update the role of a user identified by their ID." +
-                    " This operation typically requires admin privileges." +
+                    " This operation requires admin privileges." +
                     " The request body must include the new role details."
     )
     public UserDto updateRole(

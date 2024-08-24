@@ -11,6 +11,7 @@ public record RentalDto(
         LocalDate actualReturnDate,
         boolean isActive
 ) {
+
     public RentalDto withCar(CarDto car) {
         return new RentalDto(id, user, car, rentalDate, returnDate, actualReturnDate, isActive);
     }

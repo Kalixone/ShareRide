@@ -8,6 +8,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import mate.academy.car_sharing_app.dto.PaymentDto;
 import mate.academy.car_sharing_app.dto.PaymentRequestDto;
+import mate.academy.car_sharing_app.exceptions.CarNotFoundException;
+import mate.academy.car_sharing_app.exceptions.PaymentsProcessingException;
+import mate.academy.car_sharing_app.exceptions.RentalNotFoundException;
 import mate.academy.car_sharing_app.model.Car;
 import mate.academy.car_sharing_app.model.Payment;
 import mate.academy.car_sharing_app.model.Rental;
@@ -45,33 +48,29 @@ public class PaymentServiceImpl implements PaymentService {
         Long rentalId = paymentRequestDto.rentalId();
         Payment.Type paymentType = paymentRequestDto.paymentType();
 
-        // Obliczanie kwoty do zapłaty
         BigDecimal amountToPay = calculateAmountToPay(rentalId, paymentType.toString());
 
-        // Walidacja kwoty
         if (amountToPay.signum() <= 0) {
             throw new IllegalArgumentException("Amount to pay must be positive and non-zero.");
         }
 
-        // Konwersja kwoty na grosze
         long amountInCents = amountToPay.multiply(BigDecimal.valueOf(100)).longValueExact();
 
         Map<String, String> successParams = Map.of("sessionId", "{CHECKOUT_SESSION_ID}");
         Map<String, String> cancelParams = Map.of("cancelParam", "cancelValue");
 
-        // Tworzenie sesji Stripe
         SessionCreateParams params = SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
                                 .setCurrency("usd")
-                                .setUnitAmount(amountInCents) // Kwota w groszach
+                                .setUnitAmount(amountInCents)
                                 .setProductData(SessionCreateParams.LineItem
                                         .PriceData.ProductData.builder()
                                         .setName("Rental Payment")
                                         .build())
                                 .build())
-                        .setQuantity(1L) // Ilość 1, bo wynajmujemy tylko jeden samochód
+                        .setQuantity(1L)
                         .build())
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl("http://localhost:8080/api/payments/success?sessionId={CHECKOUT_SESSION_ID}")
@@ -81,7 +80,6 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             Session session = Session.create(params);
 
-            // Zapisanie sesji płatności w bazie
             Payment payment = new Payment();
             payment.setSessionUrl(session.getUrl());
             payment.setSessionId(session.getId());
@@ -95,17 +93,17 @@ public class PaymentServiceImpl implements PaymentService {
             return new PaymentDto(session.getUrl(), session.getId());
         } catch (StripeException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error creating payment session", e);
+            throw new PaymentsProcessingException("Error creating payment session");
         }
     }
 
     @Override
     public BigDecimal calculateAmountToPay(Long rentalId, String paymentType) {
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid rental ID"));
+                .orElseThrow(() -> new RentalNotFoundException("Invalid rental ID: " + rentalId));
 
         Car car = carRepository.findById(rental.getCarId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid car ID"));
+                .orElseThrow(() -> new CarNotFoundException("Invalid car ID " + rental.getCarId()));
 
         if ("FINE".equalsIgnoreCase(paymentType)) {
             LocalDate returnDate = rental.getReturnDate();
@@ -118,7 +116,7 @@ public class PaymentServiceImpl implements PaymentService {
                 return car.getDailyFee()
                         .multiply(BigDecimal.valueOf(overdueDays)).multiply(FINE_MULTIPLIER);
             }
-            return BigDecimal.ZERO; // No fine if not overdue
+            return BigDecimal.ZERO;
         } else {
             LocalDate rentalDate = rental.getRentalDate();
             LocalDate actualReturnDate = rental.getActualReturnDate();
@@ -130,7 +128,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             long rentalDays = ChronoUnit.DAYS.between(rentalDate, actualReturnDate);
             if (rentalDays < 0) {
-                return BigDecimal.ZERO; // No charge if rental period is not yet finished
+                return BigDecimal.ZERO;
             }
             return car.getDailyFee().multiply(BigDecimal.valueOf(rentalDays));
         }
@@ -140,7 +138,6 @@ public class PaymentServiceImpl implements PaymentService {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString("http://localhost:8080")
                 .path(path);
 
-        // Dodaj parametry zapytania do URL
         if (queryParams != null) {
             queryParams.forEach(uriBuilder::queryParam);
         }
@@ -150,10 +147,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentDto> getPaymentsByUserId(Long userId) {
-        // Find rental IDs for the given user ID
         List<Long> rentalIds = rentalRepository.findRentalIdsByUserId(userId);
 
-        // 2. For each rental ID, find payments and collect them into a list
         List<PaymentDto> payments = rentalIds.stream()
                 .flatMap(rentalId -> paymentRepository.findByRentalId(rentalId).stream())
                 .map(payment -> new PaymentDto(payment.getSessionUrl(), payment.getSessionId()))
@@ -164,11 +159,10 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public String handlePaymentSuccess(String sessionId) {
-        // Pobierz płatność z repozytorium
         Payment payment = paymentRepository.findBySessionId(sessionId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid session ID"));
+                .orElseThrow(() -> new PaymentsProcessingException("Invalid session ID:" +
+                        " " + sessionId));
 
-        // Zaktualizuj status płatności
         payment.setStatus(Payment.Status.PAID);
         paymentRepository.save(payment);
 

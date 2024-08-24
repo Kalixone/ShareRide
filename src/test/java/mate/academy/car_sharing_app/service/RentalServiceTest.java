@@ -115,7 +115,7 @@ public class RentalServiceTest {
     }
 
     @Test
-    @DisplayName("Verify getActiveRentalsByUserId() method returns active rentals")
+    @DisplayName("Verify getActiveRentalsByUserId() method works")
     public void getActiveRentalsByUserId_ActiveRentals_ReturnsRentalDtoList() {
         // Given
         Car car = createTestCar();
@@ -160,7 +160,7 @@ public class RentalServiceTest {
     }
 
     @Test
-    @DisplayName("Verify getSpecificRentalByUserId() returns correct RentalDto")
+    @DisplayName("Verify getSpecificRentalByUserId() method works")
     public void getSpecificRentalByUserId_ValidRequest_ReturnsRentalDto() {
         // Given
         Car car = createTestCar();
@@ -199,7 +199,7 @@ public class RentalServiceTest {
     }
 
     @Test
-    @DisplayName("Verify setActualReturnDate() sets the return date and updates rental correctly")
+    @DisplayName("Verify setActualReturnDate() method works")
     public void setActualReturnDate_ValidRequest_ReturnsUpdatedRentalDto() {
         // Given
         RentalSetActualReturnDateRequestDto requestDto

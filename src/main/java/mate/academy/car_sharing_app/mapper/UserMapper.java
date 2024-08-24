@@ -9,10 +9,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface UserMapper {
-
     @Mapping(source = "role.roleName", target = "role")
     UserDto toDto(User user);
 
     UserUpdateResponseDto toUserUpdateResponseDto(User user);
-
 }

@@ -15,4 +15,3 @@ public interface UserService {
 
     UserDto updateRole(Long id, UpdateUserRoleRequestDto updateUserRoleRequestDto);
 }
-
