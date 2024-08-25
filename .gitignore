@@ -50,3 +50,4 @@ config/
 
 # Ignore log files
 *.log
+*.gz
