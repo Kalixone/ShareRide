@@ -199,7 +199,7 @@ public class RentalServiceImpl implements RentalService {
                 .map(rentalMapper::toDto).collect(Collectors.toList());
     }
 
-    @Scheduled(cron = "0 08 19 * * ?")
+    @Scheduled(cron = "0 06 11 * * ?")
     @Override
     public void checkOverdueRentalsAndNotify() {
         List<Rental> overdueRentals = rentalRepository.findOverdueRentals(LocalDate.now());

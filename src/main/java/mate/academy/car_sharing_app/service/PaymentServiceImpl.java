@@ -4,6 +4,7 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import mate.academy.car_sharing_app.dto.PaymentDto;
@@ -19,6 +20,7 @@ import mate.academy.car_sharing_app.repository.PaymentRepository;
 import mate.academy.car_sharing_app.repository.RentalRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -33,13 +35,16 @@ public class PaymentServiceImpl implements PaymentService {
     private final RentalRepository rentalRepository;
     private final CarRepository carRepository;
 
-    private static final String stripeApiKey = "sk_test_51PjGjHDV8VpfWm572fx35t8yJywf1SGPAuLqw" +
-            "Ce1bWDTCwto9PW2LIyon7nbCjGNJMdaTt124axrlkvjSkES8gMB00kmDvtXpx";
+    private final Dotenv dotenv = Dotenv.load();
+    private final String stripeApiKey = dotenv.get("STRIPE_API_KEY");
 
     private static final BigDecimal FINE_MULTIPLIER = BigDecimal.valueOf(2);
 
     @PostConstruct
     public void init() {
+        if (stripeApiKey == null || stripeApiKey.isEmpty()) {
+            throw new IllegalStateException("Stripe API key must be set in environment variables.");
+        }
         Stripe.apiKey = stripeApiKey;
     }
 
