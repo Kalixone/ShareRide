@@ -1,8 +1,8 @@
-# 🚗 Overview of Car Sharing Service Online
+# 🚗 Overview of ShareRide
 
-Welcome to the documentation for the "Car Sharing Service" project, developed using Java Spring Boot.
+Welcome to the documentation for the "ShareRide" project, developed using Java Spring Boot.
 
-The Car Sharing Service is a modern, web-based platform designed to manage the entire lifecycle of car rentals. This application provides a streamlined solution for both car sharing service administrators and users, enhancing the efficiency of managing car inventory, rentals, and payments.
+The ShareRide project is a modern, web-based platform designed to manage the entire lifecycle of car rentals. This application provides a streamlined solution for both car sharing service administrators and users, enhancing the efficiency of managing car inventory, rentals, and payments.
 
 With this service, you can perform a wide range of operations, including:
 
@@ -104,7 +104,7 @@ Include the Bearer token in the Authorization header of your requests to access 
 
 ## 📊 Entity Structure and Relations Diagram
 
-Below is the entity structure and relations diagram for the "Car Sharing Service Online" project, illustrating connections between various entities and their fields.
+Below is the entity structure and relations diagram for the "ShareRide" project, illustrating connections between various entities and their fields.
 
 ![Entity Structure and Relations Diagram](https://i.imgur.com/eaNf3Bu.png)
 
@@ -209,7 +209,7 @@ Below is the entity structure and relations diagram for the "Car Sharing Service
 
 ## 📸 Screenshots
 
-Here, you'll find screenshots showcasing the main and most important endpoints of the "Car Sharing Service Online" project. These images highlight the core functionalities of the application. Please note that these are not all the available endpoints. For a complete list of all endpoints, please refer to the section at the top where they are all listed.
+Here, you'll find screenshots showcasing the main and most important endpoints of the "ShareRide" project. These images highlight the core functionalities of the application. Please note that these are not all the available endpoints. For a complete list of all endpoints, please refer to the section at the top where they are all listed.
 
 ### User Registration:
 ![User Registration](https://i.imgur.com/9b0ui5m.png)
