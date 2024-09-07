@@ -2,11 +2,11 @@ package mate.academy.car_sharing_app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import mate.academy.car_sharing_app.dto.RentalSetActualReturnDateRequestDto;
+import mate.academy.car_sharing_app.dto.rental.RentalSetActualReturnDateRequestDto;
 import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
-import mate.academy.car_sharing_app.dto.RentalDto;
-import mate.academy.car_sharing_app.dto.RentalRequestDto;
+import mate.academy.car_sharing_app.dto.rental.RentalDto;
+import mate.academy.car_sharing_app.dto.rental.RentalRequestDto;
 import mate.academy.car_sharing_app.model.User;
 import mate.academy.car_sharing_app.service.RentalService;
 import org.springframework.security.core.Authentication;

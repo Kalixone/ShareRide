@@ -32,10 +32,8 @@ public class UserRepositoryTest {
     },
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findByEmail_ShouldReturnUser_WhenEmailExists() {
-        // When
         User user = userRepository.findByEmail(EMAIL).orElseThrow();
 
-        // Then
         assertThat(user).isNotNull();
         assertThat(user.getEmail()).isEqualTo(EMAIL);
         assertThat(user.getFirstName()).isEqualTo("John");

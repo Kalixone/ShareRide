@@ -4,9 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import mate.academy.car_sharing_app.dto.CarDto;
-import mate.academy.car_sharing_app.dto.CreateCarRequestDto;
-import mate.academy.car_sharing_app.dto.UpdateCarRequestDto;
+import mate.academy.car_sharing_app.dto.car.CarDto;
+import mate.academy.car_sharing_app.dto.car.CreateCarRequestDto;
+import mate.academy.car_sharing_app.dto.car.UpdateCarRequestDto;
 import mate.academy.car_sharing_app.service.CarService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,7 +34,7 @@ public class CarController {
             description = "Create a new record for a car in the inventory." +
                     " The request body must include details like make, model, and year of the car."
     )
-    CarDto createCar(@RequestBody @Valid CreateCarRequestDto createCarRequestDto) {
+    public CarDto createCar(@RequestBody @Valid CreateCarRequestDto createCarRequestDto) {
        return carService.createCar(createCarRequestDto);
     }
 
@@ -44,7 +44,7 @@ public class CarController {
             description = "Retrieve detailed information about a car using its ID." +
                     " This includes details such as make, model, year, and availability."
     )
-    CarDto getCarById(@PathVariable Long id) {
+    public CarDto getCarById(@PathVariable Long id) {
         return carService.getCarById(id);
     }
 
@@ -54,7 +54,7 @@ public class CarController {
             description = "Retrieve a list of all cars available in the inventory." +
                     " This list includes basic details for each car."
     )
-    List<CarDto> getAll(Pageable pageable) {
+    public List<CarDto> getAll(Pageable pageable) {
         return carService.getAll(pageable);
     }
 
@@ -66,7 +66,7 @@ public class CarController {
                     " The request body must include updated car information" +
                     " such as make, model, and year."
     )
-    CarDto update(@PathVariable Long id,
+    public CarDto update(@PathVariable Long id,
                   @RequestBody @Valid
                   UpdateCarRequestDto updateCarRequestDto) {
         return carService.update(id, updateCarRequestDto);
@@ -79,7 +79,7 @@ public class CarController {
             description = "Delete a car record from the inventory using its ID." +
                     " This operation removes the car from the system."
     )
-    void deleteById(@PathVariable Long id) {
+    public void deleteById(@PathVariable Long id) {
         carService.deleteById(id);
     }
 }

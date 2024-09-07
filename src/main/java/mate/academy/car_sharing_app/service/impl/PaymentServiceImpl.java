@@ -1,4 +1,4 @@
-package mate.academy.car_sharing_app.service;
+package mate.academy.car_sharing_app.service.impl;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -7,17 +7,17 @@ import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import mate.academy.car_sharing_app.dto.PaymentDto;
-import mate.academy.car_sharing_app.dto.PaymentRequestDto;
-import mate.academy.car_sharing_app.exceptions.CarNotFoundException;
+import mate.academy.car_sharing_app.dto.payment.PaymentDto;
+import mate.academy.car_sharing_app.dto.payment.PaymentRequestDto;
+import mate.academy.car_sharing_app.exceptions.EntityNotFoundException;
 import mate.academy.car_sharing_app.exceptions.PaymentsProcessingException;
-import mate.academy.car_sharing_app.exceptions.RentalNotFoundException;
 import mate.academy.car_sharing_app.model.Car;
 import mate.academy.car_sharing_app.model.Payment;
 import mate.academy.car_sharing_app.model.Rental;
 import mate.academy.car_sharing_app.repository.CarRepository;
 import mate.academy.car_sharing_app.repository.PaymentRepository;
 import mate.academy.car_sharing_app.repository.RentalRepository;
+import mate.academy.car_sharing_app.service.PaymentService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -105,10 +105,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public BigDecimal calculateAmountToPay(Long rentalId, String paymentType) {
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new RentalNotFoundException("Invalid rental ID: " + rentalId));
+                .orElseThrow(() -> new EntityNotFoundException("Invalid rental ID: " + rentalId));
 
         Car car = carRepository.findById(rental.getCarId())
-                .orElseThrow(() -> new CarNotFoundException("Invalid car ID " + rental.getCarId()));
+                .orElseThrow(() -> new EntityNotFoundException("Invalid car ID "
+                        + rental.getCarId()));
 
         if ("FINE".equalsIgnoreCase(paymentType)) {
             LocalDate returnDate = rental.getReturnDate();

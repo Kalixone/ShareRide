@@ -2,9 +2,9 @@ package mate.academy.car_sharing_app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import mate.academy.car_sharing_app.dto.UpdateUserRequestDto;
-import mate.academy.car_sharing_app.dto.UpdateUserRoleRequestDto;
-import mate.academy.car_sharing_app.dto.UserDto;
+import mate.academy.car_sharing_app.dto.user.UpdateUserRequestDto;
+import mate.academy.car_sharing_app.dto.user.UpdateUserRoleRequestDto;
+import mate.academy.car_sharing_app.dto.user.UserDto;
 import mate.academy.car_sharing_app.model.Role;
 import mate.academy.car_sharing_app.model.User;
 import mate.academy.car_sharing_app.repository.UserRepository;
@@ -98,7 +98,6 @@ public class UserControllerTest {
     @WithMockUser(username = "dirk@example.com")
     @DisplayName("Verify getProfileInfo() method works")
     void getProfileInfo_AuthenticatedUser_ReturnsUserProfile() throws Exception {
-        // When
         MvcResult result = mockMvc.perform(
                         get("/api/users/me")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -106,7 +105,6 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         User user = userRepository.findByEmail(USERNAME).orElseThrow();
         UserDto actual = objectMapper
                 .readValue(result.getResponse().getContentAsString(), UserDto.class);
@@ -120,14 +118,12 @@ public class UserControllerTest {
     @WithMockUser(username = "dirk@example.com")
     @DisplayName("Verify updateProfile() method works")
     void updateProfile_ValidRequestDto_UpdatesUserProfile() throws Exception {
-        // Given
         UpdateUserRequestDto updateUserRequestDto = new UpdateUserRequestDto(
                 FIRST_NAME, LAST_NAME, PASSWORD
         );
 
         String jsonRequest = objectMapper.writeValueAsString(updateUserRequestDto);
 
-        // When
         MvcResult result = mockMvc.perform(
                         put("/api/users/me")
                                 .content(jsonRequest)
@@ -146,13 +142,11 @@ public class UserControllerTest {
     @WithMockUser(username = "dirk@example.com", authorities = {"ROLE_MANAGER"})
     @DisplayName("Verify updateRole() method works")
     void updateRole_ValidRequestDto_UpdatesUserRole() throws Exception {
-        // Given
         UpdateUserRoleRequestDto updateUserRoleRequestDto
                 = new UpdateUserRoleRequestDto(Role.RoleName.MANAGER);
 
         String jsonRequest = objectMapper.writeValueAsString(updateUserRoleRequestDto);
 
-        // When
         MvcResult result = mockMvc.perform(
                         put("/api/users/{id}/role", USER_ID)
                                 .content(jsonRequest)
@@ -161,8 +155,8 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         User updatedUser = userRepository.findById(USER_ID).orElseThrow();
-        Assertions.assertEquals(Role.RoleName.MANAGER, updatedUser.getRole().getRoleName());
+        Assertions.assertTrue(updatedUser.getRoles().stream()
+                .anyMatch(role -> role.getRoleName() == Role.RoleName.MANAGER));
     }
 }

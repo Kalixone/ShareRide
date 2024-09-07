@@ -34,16 +34,13 @@ public class CarRepositoryTest {
     },
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void decreaseInventory_ValidCarId_DecreasesInventory() {
-        // Given
         Car car = carRepository.findById(CAR_ID).orElseThrow();
         int inventory = car.getInventory();
 
-        // When
         carRepository.decreaseInventory(CAR_ID);
         entityManager.flush();
         entityManager.refresh(car);
 
-        // Then
         Car updatedCar = carRepository.findById(CAR_ID).orElseThrow();
         assertThat(updatedCar.getInventory()).isEqualTo(inventory - 1);
     }
@@ -60,16 +57,13 @@ public class CarRepositoryTest {
     },
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void increaseInventory_ValidCarId_IncreaseInventory() {
-        // Given
         Car car = carRepository.findById(CAR_ID).orElseThrow();
         int inventory = car.getInventory();
 
-        // When
         carRepository.increaseInventory(CAR_ID);
         entityManager.flush();
         entityManager.refresh(car);
 
-        // Then
         Car updatedCar = carRepository.findById(CAR_ID).orElseThrow();
         assertThat(updatedCar.getInventory()).isEqualTo(inventory + 1);
     }

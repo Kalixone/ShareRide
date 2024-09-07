@@ -3,8 +3,8 @@ package mate.academy.car_sharing_app.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import mate.academy.car_sharing_app.dto.PaymentDto;
-import mate.academy.car_sharing_app.dto.PaymentRequestDto;
+import mate.academy.car_sharing_app.dto.payment.PaymentDto;
+import mate.academy.car_sharing_app.dto.payment.PaymentRequestDto;
 import mate.academy.car_sharing_app.service.PaymentService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +20,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
-
     private final PaymentService paymentService;
 
     @PostMapping

@@ -1,28 +1,31 @@
-package mate.academy.car_sharing_app.service;
+package mate.academy.car_sharing_app.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import mate.academy.car_sharing_app.dto.RentalDto;
-import mate.academy.car_sharing_app.dto.RentalRequestDto;
-import mate.academy.car_sharing_app.dto.UserDto;
-import mate.academy.car_sharing_app.dto.CarDto;
-import mate.academy.car_sharing_app.dto.RentalSetActualReturnDateRequestDto;
-import mate.academy.car_sharing_app.exceptions.CarNotFoundException;
-import mate.academy.car_sharing_app.exceptions.RentalNotFoundException;
-import mate.academy.car_sharing_app.exceptions.UsernameNotFoundException;
+import mate.academy.car_sharing_app.dto.car.CarDto;
+import mate.academy.car_sharing_app.dto.rental.RentalDto;
+import mate.academy.car_sharing_app.dto.rental.RentalRequestDto;
+import mate.academy.car_sharing_app.dto.rental.RentalSetActualReturnDateRequestDto;
+import mate.academy.car_sharing_app.dto.user.UserDto;
+import mate.academy.car_sharing_app.exceptions.EntityNotFoundException;
 import mate.academy.car_sharing_app.mapper.CarMapper;
 import mate.academy.car_sharing_app.mapper.RentalMapper;
 import mate.academy.car_sharing_app.model.Car;
 import mate.academy.car_sharing_app.model.Rental;
+import mate.academy.car_sharing_app.model.Role;
 import mate.academy.car_sharing_app.model.User;
 import mate.academy.car_sharing_app.repository.CarRepository;
 import mate.academy.car_sharing_app.repository.RentalRepository;
 import mate.academy.car_sharing_app.repository.UserRepository;
+import mate.academy.car_sharing_app.service.NotificationService;
+import mate.academy.car_sharing_app.service.RentalService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -39,17 +42,18 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto rentACar(Long userId, RentalRequestDto rentalRequestDto) {
         Car car = carRepository.findById(rentalRequestDto.carId()).orElseThrow(
-                () -> new CarNotFoundException("Car not found by id: " + rentalRequestDto.carId()));
+                () -> new EntityNotFoundException("Car not found by id: "
+                        + rentalRequestDto.carId()));
 
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new UsernameNotFoundException("User not found by id: " + userId));
+                () -> new EntityNotFoundException("User not found by id: " + userId));
 
         UserDto userDto = new UserDto(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole().getRoleName()
+                mapRoles(user.getRoles())
         );
 
         Long rentalDays = rentalRequestDto.rentalDays();
@@ -85,19 +89,19 @@ public class RentalServiceImpl implements RentalService {
         LocalDate now = LocalDate.now();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found by id: " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found by id: " + userId));
         UserDto userDto = new UserDto(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole().getRoleName()
+                mapRoles(user.getRoles())
         );
 
         return rentals.stream()
                 .map(rental -> {
                     Car car = carRepository.findById(rental.getCarId())
-                            .orElseThrow(() -> new CarNotFoundException("Car not found by id: "
+                            .orElseThrow(() -> new EntityNotFoundException("Car not found by id: "
                                     + rental.getCarId()));
 
                     CarDto carDto = carMapper.toDto(car);
@@ -111,7 +115,7 @@ public class RentalServiceImpl implements RentalService {
     @Override
     public RentalDto getSpecificRentalByUserId(Long userId, Long rentalId) {
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new RentalNotFoundException("Rental not found" +
+                .orElseThrow(() -> new EntityNotFoundException("Rental not found" +
                         " by id: " + rentalId));
 
         if (!rental.getUserId().equals(userId)) {
@@ -119,18 +123,18 @@ public class RentalServiceImpl implements RentalService {
         }
 
         Car car = carRepository.findById(rental.getCarId())
-                .orElseThrow(() -> new CarNotFoundException("Car" +
+                .orElseThrow(() -> new EntityNotFoundException("Car" +
                         " not found by id: " + rental.getCarId()));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found by id: " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found by id: " + userId));
 
         UserDto userDto = new UserDto(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole().getRoleName()
+                mapRoles(user.getRoles())
         );
 
         CarDto carDto = new CarDto(
@@ -157,7 +161,7 @@ public class RentalServiceImpl implements RentalService {
     public RentalDto setActualReturnDate(
             RentalSetActualReturnDateRequestDto rentalSetActualReturnDateRequestDto) {
         Rental rental = rentalRepository.findById(rentalSetActualReturnDateRequestDto.rentalId())
-                .orElseThrow(() -> new RentalNotFoundException("Rental not found by ID: "
+                .orElseThrow(() -> new EntityNotFoundException("Rental not found by ID: "
                         + rentalSetActualReturnDateRequestDto.rentalId()));
 
         rental.setActualReturnDate(rentalSetActualReturnDateRequestDto.actualReturnDate());
@@ -167,18 +171,18 @@ public class RentalServiceImpl implements RentalService {
         carRepository.increaseInventory(rental.getCarId());
 
         Car car = carRepository.findById(rental.getCarId())
-                .orElseThrow(() -> new CarNotFoundException("Car not found" +
+                .orElseThrow(() -> new EntityNotFoundException("Car not found" +
                         " by id: " + rental.getCarId()));
 
         User user = userRepository.findById(rental.getUserId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found" +
+                .orElseThrow(() -> new EntityNotFoundException("User not found" +
                         " by id: " + rental.getUserId()));
         UserDto userDto = new UserDto(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole().getRoleName()
+                mapRoles(user.getRoles())
         );
 
         RentalDto rentalDto = rentalMapper.toDto(savedRental);
@@ -210,7 +214,7 @@ public class RentalServiceImpl implements RentalService {
             for (Rental rental : overdueRentals) {
                 CarDto carDto = carRepository.findById(rental.getCarId())
                         .map(carMapper::toDto)
-                        .orElseThrow(() -> new CarNotFoundException("Car not found" +
+                        .orElseThrow(() -> new EntityNotFoundException("Car not found" +
                                 " by id: " + rental.getCarId()));
                 UserDto userDto = userRepository.findById(rental.getUserId())
                         .map(user -> new UserDto(
@@ -218,9 +222,9 @@ public class RentalServiceImpl implements RentalService {
                                 user.getEmail(),
                                 user.getFirstName(),
                                 user.getLastName(),
-                                user.getRole().getRoleName()
+                                mapRoles(user.getRoles())
                         ))
-                        .orElseThrow(() -> new UsernameNotFoundException("User not found" +
+                        .orElseThrow(() -> new EntityNotFoundException("User not found" +
                                 " by id: " + rental.getUserId()));
 
                 RentalDto rentalDto = rentalMapper.toDto(rental)
@@ -239,5 +243,11 @@ public class RentalServiceImpl implements RentalService {
                 notificationService.sendNotification(message);
             }
         }
+    }
+
+    private Set<String> mapRoles(Set<Role> roles) {
+        return roles.stream()
+                .map(role -> role.getRoleName().name())
+                .collect(Collectors.toSet());
     }
 }

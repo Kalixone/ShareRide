@@ -1,11 +1,12 @@
 package mate.academy.car_sharing_app.service;
 
-import mate.academy.car_sharing_app.dto.CarDto;
-import mate.academy.car_sharing_app.dto.CreateCarRequestDto;
-import mate.academy.car_sharing_app.dto.UpdateCarRequestDto;
+import mate.academy.car_sharing_app.dto.car.CarDto;
+import mate.academy.car_sharing_app.dto.car.CreateCarRequestDto;
+import mate.academy.car_sharing_app.dto.car.UpdateCarRequestDto;
 import mate.academy.car_sharing_app.mapper.CarMapper;
 import mate.academy.car_sharing_app.model.Car;
 import mate.academy.car_sharing_app.repository.CarRepository;
+import mate.academy.car_sharing_app.service.impl.CarServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +49,6 @@ public class CarServiceTest {
     @Test
     @DisplayName("Verify createCar() method works")
     public void createCar_ValidRequestDto_ReturnsCarDto() {
-        // Given
         CreateCarRequestDto carRequestDto
                 = createCarRequestDto(MODEL, BRAND, TYPE, INVENTORY, DAILY_FEE);
         Car car = createCar(CAR_ID, MODEL, BRAND, TYPE, INVENTORY, DAILY_FEE);
@@ -58,10 +58,8 @@ public class CarServiceTest {
         when(carMapper.toDto(car)).thenReturn(carDto);
         when(carRepository.save(car)).thenReturn(car);
 
-        // When
         CarDto savedCarDto = carService.createCar(carRequestDto);
 
-        // Then
         assertThat(savedCarDto).isEqualTo(carDto);
         verify(carRepository).save(car);
         verify(carMapper).toModel(carRequestDto);
@@ -72,17 +70,14 @@ public class CarServiceTest {
     @Test
     @DisplayName("Verify getById() method works")
     public void getCarById_ValidId_ReturnsCarDto() {
-        // Given
         Car car = createCar(CAR_ID, MODEL, BRAND, TYPE, INVENTORY, DAILY_FEE);
         CarDto carDto = createCarDto(CAR_ID, MODEL, BRAND, TYPE, DAILY_FEE);
 
         when(carRepository.findById(CAR_ID)).thenReturn(Optional.of(car));
         when(carMapper.toDto(car)).thenReturn(carDto);
 
-        // When
         CarDto carById = carService.getCarById(CAR_ID);
 
-        // Then
         assertThat(carById).isEqualTo(carDto);
         verify(carRepository).findById(CAR_ID);
         verify(carMapper).toDto(car);
@@ -92,7 +87,6 @@ public class CarServiceTest {
     @Test
     @DisplayName("Verify getAll() method works")
     public void getAll_ValidPageable_ReturnsAllCars() {
-        // Given
         Pageable pageable = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
         Car car = createCar(CAR_ID, MODEL, BRAND, TYPE, INVENTORY, DAILY_FEE);
         CarDto carDto = createCarDto(CAR_ID, MODEL, BRAND, TYPE, DAILY_FEE);
@@ -101,10 +95,8 @@ public class CarServiceTest {
         when(carRepository.findAll(pageable)).thenReturn(carPage);
         when(carMapper.toDto(car)).thenReturn(carDto);
 
-        // When
         List<CarDto> result = carService.getAll(pageable);
 
-        // Then
         assertThat(result).containsExactly(carDto);
         verify(carRepository).findAll(pageable);
         verify(carMapper).toDto(car);
@@ -114,10 +106,8 @@ public class CarServiceTest {
     @Test
     @DisplayName("Verify deleteById() method works")
     public void deleteById_ValidId_DeletesCar() {
-        // When
         carService.deleteById(CAR_ID);
 
-        // Then
         verify(carRepository).deleteById(CAR_ID);
         verifyNoMoreInteractions(carRepository);
     }
@@ -125,7 +115,6 @@ public class CarServiceTest {
     @Test
     @DisplayName("Verify updateCar() method works")
     public void updateCar_ValidCarRequestDto_ReturnsCarDto() {
-        // Given
         UpdateCarRequestDto updateCarRequestDto
                 = createUpdateCarRequestDto(MODEL, BRAND, TYPE, INVENTORY, DAILY_FEE);
         Car car = createCar(CAR_ID, MODEL, BRAND, TYPE, INVENTORY, DAILY_FEE);
@@ -136,10 +125,8 @@ public class CarServiceTest {
         when(carRepository.save(car)).thenReturn(car);
         when(carMapper.toDto(car)).thenReturn(carDto);
 
-        // When
         CarDto result = carService.update(CAR_ID, updateCarRequestDto);
 
-        // Then
         assertThat(result).isEqualTo(carDto);
         verify(carRepository).findById(CAR_ID);
         verify(carRepository).save(car);

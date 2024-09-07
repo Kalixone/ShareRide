@@ -1,4 +1,7 @@
-package mate.academy.car_sharing_app.dto;
+package mate.academy.car_sharing_app.dto.rental;
+
+import mate.academy.car_sharing_app.dto.car.CarDto;
+import mate.academy.car_sharing_app.dto.user.UserDto;
 
 import java.time.LocalDate;
 

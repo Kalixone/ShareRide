@@ -31,7 +31,7 @@ public class Car {
     private TypeCar type;
     @Column(nullable = false)
     private int inventory;
-    @Column(name = "daily_fee", nullable = false)
+    @Column(nullable = false)
     private BigDecimal dailyFee;
 
     public enum TypeCar {

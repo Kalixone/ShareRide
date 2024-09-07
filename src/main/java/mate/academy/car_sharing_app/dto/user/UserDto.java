@@ -1,12 +1,12 @@
-package mate.academy.car_sharing_app.dto;
+package mate.academy.car_sharing_app.dto.user;
 
-import mate.academy.car_sharing_app.model.Role;
+import java.util.Set;
 
 public record UserDto(
         Long id,
         String email,
         String firstName,
         String lastName,
-        Role.RoleName role
+        Set<String> roles
 ) {
 }

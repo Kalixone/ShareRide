@@ -1,15 +1,16 @@
 package mate.academy.car_sharing_app.service;
 
-import mate.academy.car_sharing_app.dto.UpdateUserRequestDto;
-import mate.academy.car_sharing_app.dto.UpdateUserRoleRequestDto;
-import mate.academy.car_sharing_app.dto.UserDto;
-import mate.academy.car_sharing_app.dto.UserUpdateResponseDto;
-import mate.academy.car_sharing_app.dto.RegisterUserRequestDto;
+import mate.academy.car_sharing_app.dto.user.UpdateUserRequestDto;
+import mate.academy.car_sharing_app.dto.user.UpdateUserRoleRequestDto;
+import mate.academy.car_sharing_app.dto.user.UserDto;
+import mate.academy.car_sharing_app.dto.user.UserUpdateResponseDto;
+import mate.academy.car_sharing_app.dto.user.RegisterUserRequestDto;
 import mate.academy.car_sharing_app.mapper.UserMapper;
 import mate.academy.car_sharing_app.model.Role;
 import mate.academy.car_sharing_app.model.User;
 import mate.academy.car_sharing_app.repository.RoleRepository;
 import mate.academy.car_sharing_app.repository.UserRepository;
+import mate.academy.car_sharing_app.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
+import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -40,7 +42,7 @@ public class UserServiceTest {
     private static final Role.RoleName ROLE_UPDATE = Role.RoleName.MANAGER;
 
     @InjectMocks
-    private  UserServiceImpl userService;
+    private UserServiceImpl userService;
 
     @Mock
     private  UserRepository userRepository;
@@ -57,19 +59,16 @@ public class UserServiceTest {
     @Test
     @DisplayName("Verify getProfileInfo() method works")
     public void getProfileInfo_ValidUsername_ReturnsUserDto() {
-        // Given
         Role role = createRole(ROLE_ID, ROLE);
         User user = createUser(USER_ID, EMAIL, FIRST_NAME,
-                LAST_NAME, passwordEncoder.encode(PASSWORD), role);
+                LAST_NAME, passwordEncoder.encode(PASSWORD), Set.of(role));
         UserDto userDto = createUserDto(USER_ID, EMAIL, FIRST_NAME, LAST_NAME, ROLE);
 
         when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
         when(userMapper.toDto(user)).thenReturn(userDto);
 
-        // When
         UserDto profileInfo = userService.getProfileInfo(EMAIL);
 
-        // Then
         assertThat(profileInfo).isEqualTo(userDto);
         verify(userRepository).findByEmail(EMAIL);
         verify(userMapper).toDto(user);
@@ -79,7 +78,6 @@ public class UserServiceTest {
     @Test
     @DisplayName("Verify updateRole() method works")
     public void updateRole_ValidRequestDto_ReturnsUserDto() {
-        // Given
         UpdateUserRoleRequestDto updateUserRoleRequestDto
                 = createUpdateUserRoleRequestDto(ROLE_UPDATE);
 
@@ -87,7 +85,7 @@ public class UserServiceTest {
         Role newRole = createRole(ROLE_ID_UPDATE, ROLE_UPDATE);
 
         User user = createUser(USER_ID, EMAIL, FIRST_NAME,
-                LAST_NAME, passwordEncoder.encode(PASSWORD), oldRole);
+                LAST_NAME, passwordEncoder.encode(PASSWORD), Set.of(oldRole));
         UserDto updatedUserDto = createUserDto(USER_ID, EMAIL,
                 FIRST_NAME, LAST_NAME, ROLE_UPDATE);
 
@@ -95,10 +93,8 @@ public class UserServiceTest {
         when(roleRepository.findByRoleName(ROLE_UPDATE)).thenReturn(Optional.of(newRole));
         when(userMapper.toDto(user)).thenReturn(updatedUserDto);
 
-        // When
         UserDto result = userService.updateRole(USER_ID, updateUserRoleRequestDto);
 
-        // Then
         assertThat(result).isEqualTo(updatedUserDto);
         verify(userRepository).findById(USER_ID);
         verify(roleRepository).findByRoleName(ROLE_UPDATE);
@@ -110,7 +106,6 @@ public class UserServiceTest {
     @Test
     @DisplayName("Verify updateProfile() method works")
     public void updateProfile_ValidRequestDto_ReturnsUserUpdateResponseDto() {
-        // Given
         UpdateUserRequestDto updateUserRequestDto
                 = createUpdateUserRequestDto(UPDATED_FIRST_NAME,
                 UPDATED_LAST_NAME, UPDATED_PASSWORD);
@@ -118,23 +113,23 @@ public class UserServiceTest {
         Role role = createRole(ROLE_ID, ROLE);
 
         User existingUser = createUser(USER_ID, EMAIL, FIRST_NAME,
-                LAST_NAME, passwordEncoder.encode(PASSWORD), role);
+                LAST_NAME, passwordEncoder.encode(PASSWORD), Set.of(role));
         User updatedUser = createUser(USER_ID, EMAIL, UPDATED_FIRST_NAME,
-                UPDATED_LAST_NAME, passwordEncoder.encode(UPDATED_PASSWORD), role);
+                UPDATED_LAST_NAME, passwordEncoder.encode(UPDATED_PASSWORD), Set.of(role));
         UserUpdateResponseDto userUpdateResponseDto
                 = createUserUpdateResponseDto(UPDATED_FIRST_NAME, UPDATED_LAST_NAME);
 
         when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+        when(userRepository.save(existingUser)).thenReturn(updatedUser);
         when(userMapper.toUserUpdateResponseDto(updatedUser)).thenReturn(userUpdateResponseDto);
+        when(userMapper.updateFromDto(updateUserRequestDto, existingUser)).thenReturn(existingUser);
 
-        // When
         UserUpdateResponseDto result = userService.updateProfile(EMAIL, updateUserRequestDto);
 
-        // Then
         assertThat(result).isEqualTo(userUpdateResponseDto);
         verify(userRepository).findByEmail(EMAIL);
-        verify(userRepository).save(updatedUser);
+        verify(userMapper).updateFromDto(updateUserRequestDto, existingUser);
+        verify(userRepository).save(existingUser);
         verify(userMapper).toUserUpdateResponseDto(updatedUser);
         verifyNoMoreInteractions(userRepository, userMapper);
     }
@@ -142,44 +137,43 @@ public class UserServiceTest {
     @Test
     @DisplayName("Verify register() method works correctly")
     public void register_ValidRequestDto_ReturnsUserDto() {
-        // Given
         RegisterUserRequestDto registerUserRequestDto
                 = createRegisterUserRequestDto(EMAIL, FIRST_NAME, LAST_NAME, PASSWORD);
 
         Role role = createRole(ROLE_ID, ROLE);
         User user = createUser(USER_ID, registerUserRequestDto.email(),
                 registerUserRequestDto.firstName(), registerUserRequestDto.lastName(),
-                passwordEncoder.encode(registerUserRequestDto.password()), role);
+                passwordEncoder.encode(registerUserRequestDto.password()), Set.of(role));
         UserDto userDto = createUserDto(USER_ID, user.getEmail(),
                 user.getFirstName(), user.getLastName(),
-                user.getRole().getRoleName());
+                user.getRoles().iterator().next().getRoleName());
 
-        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
+        when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
         when(roleRepository.findByRoleName(ROLE)).thenReturn(Optional.of(role));
+        when(userMapper.toEntity(registerUserRequestDto)).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(userDto);
 
-        // When
         UserDto registeredUser = userService.register(registerUserRequestDto);
 
-        // Then
         assertThat(registeredUser).isEqualTo(userDto);
         verify(userRepository).save(any(User.class));
-        verify(userRepository).findByEmail(EMAIL);
+        verify(userRepository).existsByEmail(EMAIL);
         verify(roleRepository).findByRoleName(ROLE);
+        verify(userMapper).toEntity(registerUserRequestDto);
         verify(userMapper).toDto(user);
         verifyNoMoreInteractions(userRepository, userMapper, roleRepository);
     }
 
     private User createUser(Long id, String email,
-                            String firstName, String lastName, String password, Role role) {
+                            String firstName, String lastName, String password, Set<Role> roles) {
         User user = new User();
         user.setId(id);
         user.setEmail(email);
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setPassword(password);
-        user.setRole(role);
+        user.setRoles(roles);
         return user;
     }
 
@@ -192,7 +186,8 @@ public class UserServiceTest {
 
     private UserDto createUserDto(Long id, String email, String firstName,
                                   String lastName, Role.RoleName roleName) {
-        return new UserDto(id, email, firstName, lastName, roleName);
+        Set<String> roles = Set.of(roleName.name());
+        return new UserDto(id, email, firstName, lastName, roles);
     }
 
     private UpdateUserRequestDto createUpdateUserRequestDto(String firstName,

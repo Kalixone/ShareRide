@@ -1,16 +1,16 @@
-package mate.academy.car_sharing_app.dto;
+package mate.academy.car_sharing_app.dto.car;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import mate.academy.car_sharing_app.model.Car;
+import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
 
 public record CreateCarRequestDto(
-        @NotEmpty
+        @NotBlank
         String model,
-        @NotEmpty
+        @NotBlank
         String brand,
         @NotNull
         Car.TypeCar type,

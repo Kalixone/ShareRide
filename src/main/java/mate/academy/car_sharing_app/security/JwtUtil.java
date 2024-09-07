@@ -13,14 +13,15 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    private Key secret;
+    private final Key secret;
 
-    public JwtUtil(@Value("${jwt.secret}")String secretString) {
-        secret = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
+    private final long expiration;
+
+    public JwtUtil(@Value("${jwt.secret}") String secretString,
+                   @Value("${jwt.expiration}") long expiration) {
+        this.secret = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
+        this.expiration = expiration;
     }
-
-    @Value("${jwt.expiration}")
-    private long expiration;
 
     public String generateToken(String username) {
         return Jwts.builder()

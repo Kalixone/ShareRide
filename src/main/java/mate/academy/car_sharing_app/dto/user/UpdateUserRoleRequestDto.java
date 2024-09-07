@@ -1,4 +1,4 @@
-package mate.academy.car_sharing_app.dto;
+package mate.academy.car_sharing_app.dto.user;
 
 import mate.academy.car_sharing_app.model.Role;
 
