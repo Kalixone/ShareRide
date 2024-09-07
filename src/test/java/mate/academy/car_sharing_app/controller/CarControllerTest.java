@@ -2,9 +2,9 @@ package mate.academy.car_sharing_app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import mate.academy.car_sharing_app.dto.CarDto;
-import mate.academy.car_sharing_app.dto.CreateCarRequestDto;
-import mate.academy.car_sharing_app.dto.UpdateCarRequestDto;
+import mate.academy.car_sharing_app.dto.car.CarDto;
+import mate.academy.car_sharing_app.dto.car.CreateCarRequestDto;
+import mate.academy.car_sharing_app.dto.car.UpdateCarRequestDto;
 import mate.academy.car_sharing_app.model.Car;
 import mate.academy.car_sharing_app.repository.CarRepository;
 import org.junit.jupiter.api.Assertions;
@@ -98,12 +98,10 @@ public class CarControllerTest {
     @WithMockUser(username = "dirk@example.com", authorities = {"ROLE_MANAGER"})
     @DisplayName("Verify createCar() method works")
     void createCar_ValidRequestDto_CreatesNewCar() throws Exception {
-        // Given
         CreateCarRequestDto carRequestDto
                 = createCarRequestDto(MODEL, BRAND, TYPE, INVENTORY, DAILY_FEE);
         String jsonRequest = objectMapper.writeValueAsString(carRequestDto);
 
-        // When
         MvcResult result = mockMvc.perform(
                         post("/api/cars")
                                 .content(jsonRequest)
@@ -112,7 +110,6 @@ public class CarControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         CarDto actualCar = objectMapper
                 .readValue(result.getResponse().getContentAsString(), CarDto.class);
         Assertions.assertNotNull(actualCar.id());
@@ -126,14 +123,12 @@ public class CarControllerTest {
     @WithMockUser(username = "dirk@example.com")
     @DisplayName("Verify getCarById() method works")
     void getCarById_ValidId_ReturnsCarDto() throws Exception {
-        // Given
         CarDto carDto
                 = createCarDto(CAR_ID, MODEL, BRAND, TYPE, DAILY_FEE);
         CarDto expected
                 = createCarDto(carDto.id(), carDto.model(),
                 carDto.model(), carDto.type(), carDto.dailyFee());
 
-        // When
         MvcResult result = mockMvc.perform(
                         get("/api/cars/{id}", CAR_ID)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -141,7 +136,6 @@ public class CarControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         CarDto actual = objectMapper
                 .readValue(result.getResponse().getContentAsString(), CarDto.class);
         EqualsBuilder.reflectionEquals(expected, actual, "id");
@@ -151,21 +145,18 @@ public class CarControllerTest {
     @WithMockUser(username = "dirk@example.com")
     @DisplayName("Verify getAll() method works")
     void getAll_ValidRequest_ReturnsAllCars() throws Exception {
-        // Given
         CarDto carDto1 = createCarDto(CAR_ID, MODEL,
                 BRAND,TYPE, DAILY_FEE);
         CarDto carDto2 = createCarDto(SECOND_CAR_ID, SECOND_MODEL,
                 SECOND_BRAND, SECOND_TYPE, SECOND_DAILY_FEE);
         List<CarDto> expected = List.of(carDto1, carDto2);
 
-        // When
         MvcResult result = mockMvc.perform(
                         get("/api/cars")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         CarDto[] actual = objectMapper
                 .readValue(result.getResponse().getContentAsString(), CarDto[].class);
         Assertions.assertEquals(expected.size(), actual.length);
@@ -175,17 +166,14 @@ public class CarControllerTest {
     @WithMockUser(username = "dirk@example.com'", authorities = {"ROLE_MANAGER"})
     @DisplayName("Verify deleteById() method works")
     void deleteCarById_ValidId_DeletesCar() throws Exception {
-        // Given
         carRepository.findById(DELETE_CAR_ID);
 
-        // When
         mockMvc.perform(
                         delete("/api/cars/{id}", DELETE_CAR_ID)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         Optional<Car> deletedCar = carRepository.findById(DELETE_CAR_ID);
         Assertions.assertFalse(deletedCar.isPresent());
     }

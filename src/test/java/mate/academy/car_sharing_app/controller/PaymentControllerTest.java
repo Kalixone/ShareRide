@@ -2,8 +2,8 @@ package mate.academy.car_sharing_app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import mate.academy.car_sharing_app.dto.PaymentDto;
-import mate.academy.car_sharing_app.dto.PaymentRequestDto;
+import mate.academy.car_sharing_app.dto.payment.PaymentDto;
+import mate.academy.car_sharing_app.dto.payment.PaymentRequestDto;
 import mate.academy.car_sharing_app.model.Payment;
 import mate.academy.car_sharing_app.service.PaymentService;
 import org.junit.jupiter.api.Assertions;
@@ -123,12 +123,10 @@ public class PaymentControllerTest {
     @WithMockUser(username = "dirk@example.com")
     @DisplayName("Verify createPaymentSession() method works")
     void createPaymentSession_ValidRequest_CreatesNewPaymentSession() throws Exception {
-        // Given
         PaymentRequestDto paymentRequestDto = new PaymentRequestDto(RENTAL_ID, Payment.Type.PAYMENT);
 
         String jsonRequest = objectMapper.writeValueAsString(paymentRequestDto);
 
-        // When
         MvcResult result = mockMvc.perform(
                         post("/api/payments")
                                 .content(jsonRequest)
@@ -137,7 +135,6 @@ public class PaymentControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         String responseContent = result.getResponse().getContentAsString();
         PaymentDto actual = objectMapper.readValue(responseContent, PaymentDto.class);
 
@@ -151,7 +148,6 @@ public class PaymentControllerTest {
     @WithMockUser(username = "dirk@example.com")
     @DisplayName("Verify getPayments() method works")
     void getPayments_ValidUserId_ReturnsPayments() throws Exception {
-        // When
         MvcResult result = mockMvc.perform(
                         get("/api/payments/{id}", USER_ID)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -159,7 +155,6 @@ public class PaymentControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         List<PaymentDto> actual = objectMapper.readValue(result.getResponse()
                 .getContentAsString(), objectMapper.getTypeFactory()
                 .constructCollectionType(List.class, PaymentDto.class));
@@ -170,7 +165,6 @@ public class PaymentControllerTest {
     @WithMockUser(username = "dirk@example.com")
     @DisplayName("Verify handlePaymentSuccess() method works")
     void handlePaymentSuccess_ValidSessionId_ReturnsSuccessMessage() throws Exception {
-        // When
         MvcResult result = mockMvc.perform(
                         get("/api/payments/success")
                                 .param("sessionId", SESSION_ID)
@@ -179,7 +173,6 @@ public class PaymentControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Then
         String response = result.getResponse().getContentAsString();
         Assertions.assertEquals("Payment was successful: " + SESSION_ID, response);
     }

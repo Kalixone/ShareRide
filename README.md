@@ -132,7 +132,7 @@ Below is the entity structure and relations diagram for the "Car Sharing Service
 - Repositories, such as CarRepository, RentalRepository, UserRepository, responsible for database communication and data persistence.
 
 **Exceptions**
-- Exceptions, such as CarNotFoundException, RentalNotFoundException, UsernameNotFoundException, handling custom errors and exceptions in the application.
+- Exceptions, such as EntityNotFoundException, PaymentsProcessingException, RegistrationException, handling custom errors and exceptions in the application.
 
 **Security**
 - Security components, such as JwtAuthenticationFilter, CustomUserDetailsService, JwtUtil, SecurityConfig, handling user authentication and authorization.

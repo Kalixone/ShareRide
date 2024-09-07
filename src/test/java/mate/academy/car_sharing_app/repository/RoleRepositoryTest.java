@@ -29,10 +29,8 @@ public class RoleRepositoryTest {
     },
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findByRoleName_ShouldReturnRole_WhenRoleNameExists() {
-        // When
         Role role = roleRepository.findByRoleName(ROLE_NAME).orElseThrow();
 
-        // Then
         assertThat(role).isNotNull();
         assertThat(role.getRoleName()).isEqualTo(ROLE_NAME);
     }

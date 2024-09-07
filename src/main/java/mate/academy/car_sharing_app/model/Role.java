@@ -17,13 +17,13 @@ import org.springframework.security.core.GrantedAuthority;
 @Setter
 @EqualsAndHashCode
 @Entity
-@Table (name = "roles")
+@Table(name = "roles")
 public class Role implements GrantedAuthority {
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column (name = "role_name")
-    @Enumerated (EnumType.STRING)
+    @Column(nullable = false, unique = true)
+    @Enumerated(EnumType.STRING)
     private RoleName roleName;
 
     @Override

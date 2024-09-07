@@ -1,8 +1,8 @@
 package mate.academy.car_sharing_app.service;
 
-import mate.academy.car_sharing_app.dto.RentalDto;
-import mate.academy.car_sharing_app.dto.RentalRequestDto;
-import mate.academy.car_sharing_app.dto.RentalSetActualReturnDateRequestDto;
+import mate.academy.car_sharing_app.dto.rental.RentalDto;
+import mate.academy.car_sharing_app.dto.rental.RentalRequestDto;
+import mate.academy.car_sharing_app.dto.rental.RentalSetActualReturnDateRequestDto;
 import java.util.List;
 
 public interface RentalService {

@@ -1,8 +1,8 @@
 package mate.academy.car_sharing_app.security;
 
 import lombok.RequiredArgsConstructor;
-import mate.academy.car_sharing_app.dto.UserLoginRequestDto;
-import mate.academy.car_sharing_app.dto.UserLoginResponseDto;
+import mate.academy.car_sharing_app.dto.user.UserLoginRequestDto;
+import mate.academy.car_sharing_app.dto.user.UserLoginResponseDto;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

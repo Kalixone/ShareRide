@@ -1,10 +1,10 @@
 package mate.academy.car_sharing_app.service;
 
-import mate.academy.car_sharing_app.dto.CarDto;
-import mate.academy.car_sharing_app.dto.RentalDto;
-import mate.academy.car_sharing_app.dto.RentalSetActualReturnDateRequestDto;
-import mate.academy.car_sharing_app.dto.UserDto;
-import mate.academy.car_sharing_app.dto.RentalRequestDto;
+import mate.academy.car_sharing_app.dto.car.CarDto;
+import mate.academy.car_sharing_app.dto.rental.RentalDto;
+import mate.academy.car_sharing_app.dto.rental.RentalRequestDto;
+import mate.academy.car_sharing_app.dto.rental.RentalSetActualReturnDateRequestDto;
+import mate.academy.car_sharing_app.dto.user.UserDto;
 import mate.academy.car_sharing_app.mapper.CarMapper;
 import mate.academy.car_sharing_app.mapper.RentalMapper;
 import mate.academy.car_sharing_app.model.Car;
@@ -14,6 +14,7 @@ import mate.academy.car_sharing_app.model.User;
 import mate.academy.car_sharing_app.repository.CarRepository;
 import mate.academy.car_sharing_app.repository.RentalRepository;
 import mate.academy.car_sharing_app.repository.UserRepository;
+import mate.academy.car_sharing_app.service.impl.RentalServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,16 +24,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -78,7 +80,6 @@ public class RentalServiceTest {
     @Test
     @DisplayName("Verify rentACar() method works")
     public void rentACar_ValidRequestDto_ReturnsRentalDto() {
-        // Given
         Car car = createTestCar();
         User user = createTestUser();
         Rental rental = createTestRental(user, car);
@@ -89,7 +90,8 @@ public class RentalServiceTest {
 
         UserDto userDto = new UserDto(
                 user.getId(), user.getEmail(), user.getFirstName(),
-                user.getLastName(), user.getRole().getRoleName()
+                user.getLastName(), new HashSet<>(user.getRoles().stream()
+                .map(role -> role.getRoleName().name()).toList())
         );
 
         RentalDto rentalDto = new RentalDto(
@@ -105,11 +107,9 @@ public class RentalServiceTest {
         doReturn(rentalDto).when(rentalMapper).toDto(any(Rental.class));
         doNothing().when(notificationService).sendNotification(anyString());
 
-        // When
         RentalDto result = rentalService.rentACar(user.getId(),
                 new RentalRequestDto(car.getId(), RENTAL_DAYS));
 
-        // Then
         assertThat(result).isEqualTo(rentalDto);
         verify(notificationService).sendNotification(anyString());
     }
@@ -117,7 +117,6 @@ public class RentalServiceTest {
     @Test
     @DisplayName("Verify getActiveRentalsByUserId() method works")
     public void getActiveRentalsByUserId_ActiveRentals_ReturnsRentalDtoList() {
-        // Given
         Car car = createTestCar();
         User user = createTestUser();
         Rental rental = createTestRental(user, car);
@@ -129,7 +128,8 @@ public class RentalServiceTest {
 
         UserDto userDto = new UserDto(
                 user.getId(), user.getEmail(), user.getFirstName(),
-                user.getLastName(), user.getRole().getRoleName()
+                user.getLastName(), new HashSet<>(user.getRoles().stream()
+                .map(role -> role.getRoleName().name()).toList())
         );
 
         RentalDto rentalDto = new RentalDto(
@@ -145,10 +145,8 @@ public class RentalServiceTest {
         when(rentalMapper.toDto(rental)).thenReturn(rentalDto);
         when(carMapper.toDto(car)).thenReturn(carDto);
 
-        // When
         List<RentalDto> result = rentalService.getActiveRentalsByUserId(USER_ID);
 
-        // Then
         assertThat(result).containsExactly(rentalDto);
         verify(rentalRepository).findByUserIdAndActualReturnDateIsNull(USER_ID);
         verify(userRepository).findById(USER_ID);
@@ -162,7 +160,6 @@ public class RentalServiceTest {
     @Test
     @DisplayName("Verify getSpecificRentalByUserId() method works")
     public void getSpecificRentalByUserId_ValidRequest_ReturnsRentalDto() {
-        // Given
         Car car = createTestCar();
         User user = createTestUser();
         Rental rental = createTestRental(user, car);
@@ -174,7 +171,8 @@ public class RentalServiceTest {
 
         UserDto userDto = new UserDto(
                 user.getId(), user.getEmail(), user.getFirstName(),
-                user.getLastName(), user.getRole().getRoleName()
+                user.getLastName(), new HashSet<>(user.getRoles().stream()
+                .map(role -> role.getRoleName().name()).toList())
         );
 
         RentalDto rentalDto = new RentalDto(
@@ -187,10 +185,8 @@ public class RentalServiceTest {
         when(carRepository.findById(CAR_ID)).thenReturn(Optional.of(car));
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
-        // When
         RentalDto result = rentalService.getSpecificRentalByUserId(USER_ID, RENTAL_ID);
 
-        // Then
         assertThat(result).isEqualTo(rentalDto);
         verify(rentalRepository).findById(RENTAL_ID);
         verify(carRepository).findById(CAR_ID);
@@ -201,7 +197,6 @@ public class RentalServiceTest {
     @Test
     @DisplayName("Verify setActualReturnDate() method works")
     public void setActualReturnDate_ValidRequest_ReturnsUpdatedRentalDto() {
-        // Given
         RentalSetActualReturnDateRequestDto requestDto
                 = new RentalSetActualReturnDateRequestDto(RENTAL_ID, RETURN_DATE);
 
@@ -224,7 +219,8 @@ public class RentalServiceTest {
 
         UserDto userDto = new UserDto(
                 user.getId(), user.getEmail(), user.getFirstName(),
-                user.getLastName(), user.getRole().getRoleName()
+                user.getLastName(), new HashSet<>(user.getRoles().stream()
+                .map(role -> role.getRoleName().name()).toList())
         );
 
         RentalDto rentalDto = new RentalDto(
@@ -240,10 +236,8 @@ public class RentalServiceTest {
         when(carMapper.toDto(car)).thenReturn(carDto);
         when(rentalMapper.toDto(updatedRental)).thenReturn(rentalDto);
 
-        // When
         RentalDto result = rentalService.setActualReturnDate(requestDto);
 
-        // Then
         assertThat(result).isEqualTo(rentalDto);
         verify(rentalRepository).findById(RENTAL_ID);
         verify(rentalRepository).save(updatedRental);
@@ -277,7 +271,7 @@ public class RentalServiceTest {
         user.setEmail(USER_EMAIL);
         user.setFirstName(USER_FIRST_NAME);
         user.setLastName(USER_LAST_NAME);
-        user.setRole(role);
+        user.setRoles(new HashSet<>(Arrays.asList(role)));
         return user;
     }
 

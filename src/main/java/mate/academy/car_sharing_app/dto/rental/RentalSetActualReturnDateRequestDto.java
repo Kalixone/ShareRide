@@ -1,4 +1,4 @@
-package mate.academy.car_sharing_app.dto;
+package mate.academy.car_sharing_app.dto.rental;
 
 import jakarta.validation.constraints.NotNull;
 

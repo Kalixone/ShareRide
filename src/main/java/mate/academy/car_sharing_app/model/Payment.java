@@ -26,13 +26,10 @@ public class Payment {
     private Status status;
     @Enumerated(value = EnumType.STRING)
     private Type type;
-    @Column(name = "rental_id")
     private Long rentalId;
-    @Column(name = "session_url", length = 100000)
+    @Column(length = 100000)
     private String sessionUrl;
-    @Column(name = "session_id")
     private String sessionId;
-    @Column(name = "amount_to_pay")
     private BigDecimal amountToPay;
 
     public enum Status {

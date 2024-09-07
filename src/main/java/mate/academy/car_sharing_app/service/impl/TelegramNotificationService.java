@@ -1,5 +1,6 @@
-package mate.academy.car_sharing_app.service;
+package mate.academy.car_sharing_app.service.impl;
 
+import mate.academy.car_sharing_app.service.NotificationService;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;

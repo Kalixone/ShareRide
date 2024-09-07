@@ -1,21 +1,23 @@
-package mate.academy.car_sharing_app.service;
+package mate.academy.car_sharing_app.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import mate.academy.car_sharing_app.dto.RegisterUserRequestDto;
-import mate.academy.car_sharing_app.dto.UserDto;
-import mate.academy.car_sharing_app.dto.UserUpdateResponseDto;
-import mate.academy.car_sharing_app.dto.UpdateUserRequestDto;
-import mate.academy.car_sharing_app.dto.UpdateUserRoleRequestDto;
+import mate.academy.car_sharing_app.dto.user.RegisterUserRequestDto;
+import mate.academy.car_sharing_app.dto.user.UpdateUserRequestDto;
+import mate.academy.car_sharing_app.dto.user.UserDto;
+import mate.academy.car_sharing_app.dto.user.UserUpdateResponseDto;
+import mate.academy.car_sharing_app.dto.user.UpdateUserRoleRequestDto;
+import mate.academy.car_sharing_app.exceptions.EntityNotFoundException;
 import mate.academy.car_sharing_app.exceptions.RegistrationException;
-import mate.academy.car_sharing_app.exceptions.RoleNotFoundException;
-import mate.academy.car_sharing_app.exceptions.UsernameNotFoundException;
 import mate.academy.car_sharing_app.mapper.UserMapper;
 import mate.academy.car_sharing_app.model.Role;
 import mate.academy.car_sharing_app.model.User;
 import mate.academy.car_sharing_app.repository.RoleRepository;
 import mate.academy.car_sharing_app.repository.UserRepository;
+import mate.academy.car_sharing_app.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Set;
+import java.util.HashSet;
 
 @RequiredArgsConstructor
 @Service
@@ -27,19 +29,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto register(RegisterUserRequestDto registerUserRequestDto) {
-        if (userRepository.findByEmail(registerUserRequestDto.email()).isPresent()) {
-            throw new RegistrationException("Can't register user");
+        if (userRepository.existsByEmail(registerUserRequestDto.email())) {
+            throw new RegistrationException("Email already in use: "
+                    + registerUserRequestDto.email());
         }
 
         Role defaultRole = roleRepository.findByRoleName(Role.RoleName.CUSTOMER).orElseThrow(
-                () -> new RuntimeException("Default role CUSTOMER not found"));
+                () -> new EntityNotFoundException("Default role CUSTOMER not found"));
 
-        User user = new User();
-        user.setEmail(registerUserRequestDto.email());
-        user.setFirstName(registerUserRequestDto.firstName());
-        user.setLastName(registerUserRequestDto.lastName());
+        User user = userMapper.toEntity(registerUserRequestDto);
         user.setPassword(passwordEncoder.encode(registerUserRequestDto.password()));
-        user.setRole(defaultRole);
+        user.setRoles(Set.of(defaultRole));
 
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getProfileInfo(String username) {
         User user = userRepository.findByEmail(username).orElseThrow(
-                () -> new UsernameNotFoundException("User not found by username: " + username));
+                () -> new EntityNotFoundException("User not found by username: " + username));
 
         return userMapper.toDto(user);
     }
@@ -57,30 +57,32 @@ public class UserServiceImpl implements UserService {
     public UserUpdateResponseDto updateProfile(String username,
                                                UpdateUserRequestDto updateUserRequestDto) {
         User existingUser = userRepository.findByEmail(username).orElseThrow(
-                () -> new UsernameNotFoundException("User not found by username: " + username));
+                () -> new EntityNotFoundException("User not found by username: " + username));
 
-        User user = new User();
-        user.setId(existingUser.getId());
-        user.setEmail(existingUser.getEmail());
-        user.setFirstName(updateUserRequestDto.firstName());
-        user.setLastName(updateUserRequestDto.lastName());
-        user.setPassword(passwordEncoder.encode(updateUserRequestDto.password()));
-        user.setRole(existingUser.getRole());
+        userMapper.updateFromDto(updateUserRequestDto, existingUser);
 
-        User updatedUser = userRepository.save(user);
+        if (updateUserRequestDto.password() != null && !updateUserRequestDto.password().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(updateUserRequestDto.password()));
+        }
+
+        User updatedUser = userRepository.save(existingUser);
+
         return userMapper.toUserUpdateResponseDto(updatedUser);
     }
 
     @Override
     public UserDto updateRole(Long id, UpdateUserRoleRequestDto updateUserRoleRequestDto) {
         User existingUser = userRepository.findById(id).orElseThrow(
-                () -> new UsernameNotFoundException("User not found by id: " + id));
+                () -> new EntityNotFoundException("User not found by id: " + id));
 
        Role newRole = roleRepository.findByRoleName(updateUserRoleRequestDto.role()).orElseThrow(
-               () -> new RoleNotFoundException("Role not found: "
+               () -> new EntityNotFoundException("Role not found: "
                        + updateUserRoleRequestDto.role()));
 
-       existingUser.setRole(newRole);
+        Set<Role> roles = new HashSet<>();
+        roles.add(newRole);
+        existingUser.setRoles(roles);
+
        userRepository.save(existingUser);
        return userMapper.toDto(existingUser);
     }

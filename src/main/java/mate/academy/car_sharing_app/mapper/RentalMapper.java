@@ -1,7 +1,7 @@
 package mate.academy.car_sharing_app.mapper;
 
 import mate.academy.car_sharing_app.config.MapperConfig;
-import mate.academy.car_sharing_app.dto.RentalDto;
+import mate.academy.car_sharing_app.dto.rental.RentalDto;
 import mate.academy.car_sharing_app.model.Rental;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

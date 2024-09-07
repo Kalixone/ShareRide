@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changes/02-create-cars_table-and-insert-5-cars.yaml
   - include:
       file: db/changelog/changes/03-create-users_table-and-insert-admin.yaml
+  - include:
+      file: db/changelog/changes/04-create-users_roles-table-and-insert.yaml

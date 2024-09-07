@@ -32,10 +32,8 @@ public class PaymentRepositoryTest {
             "classpath:database/payments/drop-payments-table.sql"
     }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void findByRentalId_ShouldReturnPaymentsForGivenRentalId() {
-        // When
         List<Payment> byRentalId = paymentRepository.findByRentalId(RENTAL_ID);
 
-        // Then
         assertThat(byRentalId).isNotNull();
         assertThat(byRentalId).hasSize(2);
 
@@ -59,10 +57,8 @@ public class PaymentRepositoryTest {
             "classpath:database/payments/drop-payments-table.sql"
     }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void findBySessionId_ShouldReturnPaymentForGivenSessionId() {
-        // When
         Optional<Payment> bySessionId = paymentRepository.findBySessionId(SESSION_ID);
 
-        // Then
         assertThat(bySessionId)
                 .isPresent()
                 .get()

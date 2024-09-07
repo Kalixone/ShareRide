@@ -1,9 +1,10 @@
 package mate.academy.car_sharing_app.service;
 
-import mate.academy.car_sharing_app.dto.PaymentDto;
+import mate.academy.car_sharing_app.dto.payment.PaymentDto;
 import mate.academy.car_sharing_app.model.Payment;
 import mate.academy.car_sharing_app.repository.PaymentRepository;
 import mate.academy.car_sharing_app.repository.RentalRepository;
+import mate.academy.car_sharing_app.service.impl.PaymentServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,6 @@ public class PaymentServiceTest {
     @Test
     @DisplayName("Verify getPaymentsByUserId() method works")
     public void getPaymentsByUserId_ValidUserId_ReturnsPaymentList() {
-        // Given
         List<Payment> payments = createTestPayments();
         List<PaymentDto> paymentDtos = payments.stream()
                 .map(this::createTestPaymentDto)
@@ -48,26 +48,21 @@ public class PaymentServiceTest {
         when(rentalRepository.findRentalIdsByUserId(USER_ID)).thenReturn(Arrays.asList(RENTAL_ID));
         when(paymentRepository.findByRentalId(RENTAL_ID)).thenReturn(payments);
 
-        // When
         List<PaymentDto> result = paymentService.getPaymentsByUserId(USER_ID);
 
-        // Then
         assertThat(result).isEqualTo(paymentDtos);
     }
 
     @Test
     @DisplayName("Verify handlePaymentSuccess() method works")
     public void handlePaymentSuccess_ValidSessionId_UpdatesPaymentStatus() {
-        // Given
         Payment payment = createTestPayment();
         payment.setStatus(Payment.Status.PENDING);
 
         when(paymentRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(payment));
 
-        // When
         String result = paymentService.handlePaymentSuccess(SESSION_ID);
 
-        // Then
         assertThat(result).isEqualTo("Payment was successful: " + SESSION_ID);
         assertThat(payment.getStatus()).isEqualTo(Payment.Status.PAID);
     }
@@ -75,10 +70,8 @@ public class PaymentServiceTest {
     @Test
     @DisplayName("Verify handlePaymentCancel() method works")
     public void handlePaymentCancel_ReturnsCancelMessage() {
-        // When
         String result = paymentService.handlePaymentCancel();
 
-        // Then
         assertThat(result).isEqualTo(CANCELLED);
     }
 
